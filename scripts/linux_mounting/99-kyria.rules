@@ -1,0 +1,3 @@
+# Kyria keyboard bootloader automount/unmount
+SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="RPI-RP2", ACTION=="add", TAG+="systemd", ENV{SYSTEMD_WANTS}="kyria-automount@%k.service"
+SUBSYSTEM=="block", ACTION=="remove", KERNEL=="sda*", TAG+="systemd", ENV{SYSTEMD_WANTS}="kyria-unmount@%k.service"

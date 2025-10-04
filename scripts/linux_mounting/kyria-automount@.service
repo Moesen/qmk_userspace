@@ -1,0 +1,11 @@
+[Unit]
+Description=Auto-mount Kyria keyboard in bootloader mode
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/kyria-automount.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

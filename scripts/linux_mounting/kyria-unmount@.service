@@ -1,0 +1,11 @@
+[Unit]
+Description=Unmount Kyria keyboard when removed from bootloader mode
+Before=umount.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/kyria-unmount.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
