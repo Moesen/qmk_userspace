@@ -1,9 +1,15 @@
+#include <stdint.h>
 #include "action_layer.h"
+#include "color.h"
+#include "info_config.h"
+#include "keyboard.h"
 #include "keycodes.h"
+#include "keymap_common.h"
 #include "oled_driver.h"
 #include "quantum.h"
 #include "quantum_keycodes_legacy.h"
 #include "rgb_matrix.h"
+#include "rgb_matrix_types.h"
 #include QMK_KEYBOARD_H
 #include "gpio.h"
 
@@ -125,7 +131,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [_QWERTY] = LAYOUT(
      KC_TAB  , KC_Q ,  KC_W   ,  KC_E  ,   KC_R ,   KC_T ,                                        KC_Y,   KC_U ,  KC_I ,   KC_O ,  KC_P , KC_BSPC,
-     SFT_ESC , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,KC_SCLN,CTL_QUOT,
+     SFT_ESC , KC_A ,  KC_S   ,  KC_D  ,   KC_F ,   KC_G ,                                        KC_H,   KC_J ,  KC_K ,   KC_L ,KC_SCLN,KC_QUOT,
      KC_LCTL , KC_Z ,  KC_X   ,  KC_C  ,   KC_V ,   KC_B , KC_LBRC,KC_CAPS,     FKEYS  , KC_RBRC, KC_N,   KC_M ,KC_COMM, KC_DOT ,KC_SLSH, KC_RSFT,
                                 ADJUST , KC_LGUI, CODE, ALT_ENT , NAV   ,     SYM    , KC_SPC ,KC_RALT, KC_RGUI, KC_APP
     ),
@@ -332,3 +338,22 @@ bool oled_task_user(void) {
     return false;
 }
 #endif
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    if (get_highest_layer(layer_state) > 0) {
+        uint8_t layer = get_highest_layer(layer_state);
+        for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+            for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+                uint8_t index = g_led_config.matrix_co[row][col];
+                if (index >= led_min && index < led_max && index != NO_LED) {
+                    if (keymap_key_to_keycode(layer, (keypos_t){col,row}) > KC_TRNS) {
+                        rgb_matrix_set_color(index, 139, 164, 176);
+                    } else {
+                        rgb_matrix_set_color(index, RGB_BLACK);
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
