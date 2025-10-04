@@ -1,3 +1,9 @@
+#include "action_layer.h"
+#include "keycodes.h"
+#include "oled_driver.h"
+#include "quantum.h"
+#include "quantum_keycodes_legacy.h"
+#include "rgb_matrix.h"
 #include QMK_KEYBOARD_H
 #include "gpio.h"
 
@@ -224,8 +230,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [_ADJUST] = LAYOUT(
       _______, _______, _______, QWERTY , _______, _______,                                    _______, _______, _______, _______,  _______, _______,
-      _______, _______, _______, _______ , _______, _______,                                    RM_TOGG, RM_SATU, RM_HUEU, RM_VALU, RM_NEXT, _______,
-      _______, _______, _______, _______, _______, _______,_______, _______, _______, _______, _______, RM_SATD, RM_HUED, RM_VALD, RM_PREV,  _______,
+      _______, _______, _______, _______ , _______, RM_TOGG,                                    RM_SPDU, RM_SATU, RM_HUEU, RM_VALU, RM_NEXT, _______,
+      _______, _______, _______, _______, _______, _______,_______, _______, _______, _______, RM_SPDD, RM_SATD, RM_HUED, RM_VALD, RM_PREV,  _______,
                                  _______, _______, _______,_______, _______, _______, _______, _______, _______, _______
     ),
 
@@ -257,21 +263,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * DO NOT edit the rev1.c file; instead override the weakly defined default functions by your own.
  */
 
+
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) { return OLED_ROTATION_180; }
-
 bool oled_task_user(void) {
+    oled_clear();
     if (is_keyboard_master()) {
         // QMK Logo and version information
         // clang-format off
-        static const char PROGMEM qmk_logo[] = {
-            0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,0x94,
-            0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0xb4,
-            0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,0xd0,0xd1,0xd2,0xd3,0xd4,0};
+        // static const char PROGMEM qmk_logo[] = {
+        //     0x80,0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x8f,0x90,0x91,0x92,0x93,0x94,
+        //     0xa0,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xab,0xac,0xad,0xae,0xaf,0xb0,0xb1,0xb2,0xb3,0xb4,
+        //     0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,0xd0,0xd1,0xd2,0xd3,0xd4,0};
         // clang-format on
-
-        oled_write_P(qmk_logo, false);
-        oled_write_P(PSTR("Kyria rev1.0\n\n"), false);
+        // oled_write_P(qmk_logo, false);
+        oled_write_P(PSTR("moesenXkyriarev3\n"), true);
 
         // Host Keyboard Layer Status
         oled_write_P(PSTR("Layer: "), false);
@@ -293,6 +299,23 @@ bool oled_task_user(void) {
                 break;
             case _ADJUST:
                 oled_write_P(PSTR("Adjust\n"), false);
+                #ifdef RGB_MATRIX_ENABLE
+                    // Mode
+                    oled_write_P("RGB Mode: ", false);
+                    oled_write_ln_P(get_u8_str(rgb_matrix_get_mode(), ' '), false);
+                    // Hue
+                    oled_write_P("Hue: ", false);
+                    oled_write_ln_P(get_u8_str(rgb_matrix_get_hue(), ' '), false);
+                    // Saturation
+                    oled_write_P("Sat: ", false);
+                    oled_write_ln_P(get_u8_str(rgb_matrix_get_sat(), ' '), false);
+                    // Brightnesss
+                    oled_write_P("Val: ", false);
+                    oled_write_ln_P(get_u8_str(rgb_matrix_get_val(), ' '), false);
+                    // Speed
+                    oled_write_P("Speed: ", false);
+                    oled_write_ln_P(get_u8_str(rgb_matrix_get_speed(), ' '), false);
+                #endif
                 break;
             default:
                 oled_write_P(PSTR("Undefined\n"), false);
@@ -304,10 +327,8 @@ bool oled_task_user(void) {
         oled_write_P(led_usb_state.caps_lock   ? PSTR("CAPLCK ") : PSTR("       "), false);
         oled_write_P(led_usb_state.scroll_lock ? PSTR("SCRLCK ") : PSTR("       "), false);
     } else {
-        // clang-format off
         render_my_logo();
     }
     return false;
 }
 #endif
-
