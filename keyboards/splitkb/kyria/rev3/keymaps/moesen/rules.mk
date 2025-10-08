@@ -4,4 +4,3 @@ RGB_MATRIX_ENABLE = yes     # Disable keyboard RGB matrix, as it is enabled by d
 RGBLIGHT_ENABLE = no      # Enable keyboard RGB underglow
 LTO_ENABLE = no
 SPLIT_KEYBOARD = yes
-RGB_MATRIX_CUSTOM_USER = yes
